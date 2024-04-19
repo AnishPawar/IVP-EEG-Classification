@@ -3,7 +3,7 @@ from functools import partial
 import jax
 import jax.numpy as jnp
 
-from .morlet import wavelet_transform
+from morlet import wavelet_transform
 
 
 @partial(jax.jit, static_argnums=3)
@@ -55,6 +55,8 @@ def adaptive_superlet_transform(signal, freqs, sampling_freq: int, base_cycle: i
     mask = get_mask(orders, max_order)
 
     out = superlet_transform_helper(signal, freqs, cycles, sampling_freq)
-    out = jax.ops.index_update(out, mask.T, 1)
+    out = out.at[ mask.T].set(1)
+    
+    # jax.ops.index_update(out,, 1)
 
     return norm_geomean(out, orders, eps)
