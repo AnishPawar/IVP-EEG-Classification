@@ -255,7 +255,7 @@ class CustomDataset(Dataset):
 
 
 specMethods = ['MEL','CWT','SL']
-filteringMethods = ['LPF10','LPF20','db8','coif16','haar']
+filteringMethods = ['LPF10','LPF20','db8','haar']
 
 
 
