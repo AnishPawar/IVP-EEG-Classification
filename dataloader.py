@@ -21,6 +21,20 @@ from superlets import wavelet_transform, adaptive_superlet_transform
 
 import argparse
 
+import zipfile
+import os
+
+def zip_folder(folder_path, zip_path):
+
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+
+        for root, dirs, files in os.walk(folder_path):
+            for file in files:
+
+                relative_path = os.path.relpath(os.path.join(root, file), os.path.join(folder_path, '..'))
+
+                zipf.write(os.path.join(root, file), relative_path)
+
 
 class CustomDataset(Dataset):
     def __init__(self, csv_path, transform=None, USE_WAVELET='db16',root = '..',specMethod = 'mel'):
@@ -329,7 +343,11 @@ def main():
 
             plt.imsave(f'{newDataPath}/{i}/{eeg_id}-{offset}.png',img.cpu().numpy())
 
-        
+    print(f"I'm zipping your dataset Named: {newDataPath}")
+    zip_folder(newDataPath,f'{newDataPath}.zip')
+    print('Zipped your folder...')
+    print("please delete the original!!")
+    
 
 if __name__ == "__main__":
     main()
