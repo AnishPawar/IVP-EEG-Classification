@@ -286,8 +286,8 @@ def main():
     args = parser.parse_args()
 
 
-    i= args.i
-    j= args.j
+    i= args.j
+    j= args.i
 
 
     transform = transforms.Compose([
