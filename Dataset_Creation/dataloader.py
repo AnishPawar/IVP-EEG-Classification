@@ -9,6 +9,7 @@ from scipy.signal import butter, filtfilt
 from scipy.signal import stft
 
 import librosa
+import jax
 import cv2
 import pywt
 import matplotlib.pyplot as plt
@@ -150,11 +151,14 @@ class CustomDataset(Dataset):
                 if self.specMethod == 'SL':
                     # print('OK')
                     
-                    freqs = jnp.linspace(1, 25, 25)
+                    freqs = jnp.linspace(0.5, 40, 100)
+
+                    x = jax.device_put(jnp.array(x), gpu_device)
+                    freqs = jax.device_put(freqs, gpu_device)
 
                     scalogram = adaptive_superlet_transform(x, freqs, sampling_freq=200, 
-                                            base_cycle=5, min_order=5, 
-                                            max_order=30, mode="add")
+                                            base_cycle=1, min_order=1, 
+                                            max_order=16, mode="add")
                     
                     image = np.abs(scalogram)**2
                     image_normalized = cv2.normalize(image, None, 0, 255, cv2.NORM_MINMAX)
@@ -298,10 +302,10 @@ def main():
 
     batch_size = 1
 
-    train_path = 'hms-harmful-brain-activity-classification/train_mine.csv'
-    test_path = 'hms-harmful-brain-activity-classification/test_mine.csv'
-    val_path = 'hms-harmful-brain-activity-classification/val_mine.csv'
-    root = 'hms-harmful-brain-activity-classification'
+    train_path = 'original_dataset/hms-harmful-brain-activity-classification/train_mine.csv'
+    test_path = 'original_dataset/hms-harmful-brain-activity-classification/test_mine.csv'
+    val_path = 'original_dataset/hms-harmful-brain-activity-classification/val_mine.csv'
+    root = 'original_dataset/hms-harmful-brain-activity-classification'
 
 
 
@@ -319,7 +323,7 @@ def main():
 
 
 
-    newDataPath = f'hms-harmful-brain-activity-classification-{filteringMethods[i]}-{specMethods[j]}'
+    newDataPath = f'created_datasets/hms-harmful-brain-activity-classification-{filteringMethods[i]}-{specMethods[j]}'
     os.mkdir(newDataPath)
     os.chdir(newDataPath)
 
@@ -350,4 +354,7 @@ def main():
     
 
 if __name__ == "__main__":
+    devices = jax.devices("gpu")
+    gpu_device = devices[0]
+    print(f"Im using GPU: {gpu_device}")
     main()
